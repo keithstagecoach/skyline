@@ -1,3 +1,5 @@
+from __future__ import division
+from past.utils import old_div
 import pandas
 import numpy as np
 import scipy
@@ -42,7 +44,7 @@ def tail_avg(timeseries):
     to detection.
     """
     try:
-        t = (timeseries[-1][1] + timeseries[-2][1] + timeseries[-3][1]) / 3
+        t = old_div((timeseries[-1][1] + timeseries[-2][1] + timeseries[-3][1]), 3)
         return t
     except IndexError:
         return timeseries[-1][1]
@@ -64,7 +66,7 @@ def median_absolute_deviation(timeseries):
     if median_deviation == 0:
         return False
 
-    test_statistic = demedianed.iget(-1) / median_deviation
+    test_statistic = old_div(demedianed.iget(-1), median_deviation)
 
     # Completely arbitary...triggers if the median deviation is
     # 6 times bigger than the median
@@ -81,11 +83,11 @@ def grubbs(timeseries):
     stdDev = scipy.std(series)
     mean = np.mean(series)
     tail_average = tail_avg(timeseries)
-    z_score = (tail_average - mean) / stdDev
+    z_score = old_div((tail_average - mean), stdDev)
     len_series = len(series)
-    threshold = scipy.stats.t.isf(.05 / (2 * len_series), len_series - 2)
+    threshold = scipy.stats.t.isf(old_div(.05, (2 * len_series)), len_series - 2)
     threshold_squared = threshold * threshold
-    grubbs_score = ((len_series - 1) / np.sqrt(len_series)) * np.sqrt(threshold_squared / (len_series - 2 + threshold_squared))
+    grubbs_score = (old_div((len_series - 1), np.sqrt(len_series))) * np.sqrt(old_div(threshold_squared, (len_series - 2 + threshold_squared)))
 
     return z_score > grubbs_score
 
@@ -171,7 +173,7 @@ def least_squares(timeseries):
         return False
 
     std_dev = scipy.std(errors)
-    t = (errors[-1] + errors[-2] + errors[-3]) / 3
+    t = old_div((errors[-1] + errors[-2] + errors[-3]), 3)
 
     return abs(t) > std_dev * 3 and round(std_dev) != 0 and round(t) != 0
 

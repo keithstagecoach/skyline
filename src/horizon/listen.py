@@ -1,6 +1,10 @@
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import object
 import socket
 from os import kill, getpid
-from Queue import Full
+from queue import Full
 from multiprocessing import Process
 from struct import Struct, unpack
 from msgpack import unpackb
@@ -13,12 +17,12 @@ logger = logging.getLogger("HorizonLog")
 ##SafeUnpickler taken from Carbon: https://github.com/graphite-project/carbon/blob/master/lib/carbon/util.py
 import sys
 try:
-  from cStringIO import StringIO
+  from io import StringIO
 except ImportError:
-  from StringIO import StringIO
+  from io import StringIO
 
 try:
-  import cPickle as pickle
+  import pickle as pickle
   USING_CPICKLE = True
 except:
   import pickle

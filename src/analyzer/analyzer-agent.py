@@ -1,3 +1,8 @@
+from __future__ import print_function
+from builtins import zip
+from builtins import map
+from builtins import range
+from builtins import object
 import logging
 import sys
 import traceback
@@ -13,7 +18,7 @@ import settings
 from analyzer import Analyzer
 
 
-class AnalyzerAgent():
+class AnalyzerAgent(object):
     def __init__(self):
         self.stdin_path = '/dev/null'
         self.stdout_path = settings.LOG_PATH + '/analyzer.log'
@@ -33,23 +38,23 @@ if __name__ == "__main__":
     Start the Analyzer agent.
     """
     if not isdir(settings.PID_PATH):
-        print 'pid directory does not exist at %s' % settings.PID_PATH
+        print('pid directory does not exist at %s' % settings.PID_PATH)
         sys.exit(1)
 
     if not isdir(settings.LOG_PATH):
-        print 'log directory does not exist at %s' % settings.LOG_PATH
+        print('log directory does not exist at %s' % settings.LOG_PATH)
         sys.exit(1)
 
     # Make sure we can run all the algorithms
     try:
         from algorithms import *
-        timeseries = map(list, zip(map(float, range(int(time()) - 86400, int(time()) + 1)), [1] * 86401))
+        timeseries = list(map(list, list(zip(list(map(float, list(range(int(time()) - 86400, int(time()) + 1)))), [1] * 86401))))
         ensemble = [globals()[algorithm](timeseries) for algorithm in settings.ALGORITHMS]
     except KeyError as e:
-        print "Algorithm %s deprecated or not defined; check settings.ALGORITHMS" % e
+        print("Algorithm %s deprecated or not defined; check settings.ALGORITHMS" % e)
         sys.exit(1)
     except Exception as e:
-        print "Algorithm test run failed."
+        print("Algorithm test run failed.")
         traceback.print_exc()
         sys.exit(1)
 

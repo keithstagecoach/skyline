@@ -1,3 +1,4 @@
+from builtins import object
 import redis
 import logging
 import simplejson as json
@@ -54,7 +55,7 @@ def data():
         return resp, 500
 
 
-class App():
+class App(object):
     def __init__(self):
         self.stdin_path = '/dev/null'
         self.stdout_path = settings.LOG_PATH + '/webapp.log'

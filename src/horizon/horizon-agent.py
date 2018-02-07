@@ -1,3 +1,6 @@
+from __future__ import print_function
+from builtins import range
+from builtins import object
 import logging
 import time
 import sys
@@ -17,7 +20,7 @@ from worker import Worker
 # TODO: http://stackoverflow.com/questions/6728236/exception-thrown-in-multiprocessing-pool-not-detected
 
 
-class Horizon():
+class Horizon(object):
     def __init__(self):
         self.stdin_path = '/dev/null'
         self.stdout_path = settings.LOG_PATH + '/horizon.log'
@@ -65,11 +68,11 @@ if __name__ == "__main__":
     Start the Horizon agent.
     """
     if not isdir(settings.PID_PATH):
-        print 'pid directory does not exist at %s' % settings.PID_PATH
+        print('pid directory does not exist at %s' % settings.PID_PATH)
         sys.exit(1)
 
     if not isdir(settings.LOG_PATH):
-        print 'log directory does not exist at %s' % settings.LOG_PATH
+        print('log directory does not exist at %s' % settings.LOG_PATH)
         sys.exit(1)
 
     horizon = Horizon()

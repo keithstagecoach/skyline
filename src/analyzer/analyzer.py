@@ -1,5 +1,10 @@
+from __future__ import division
+from future import standard_library
+standard_library.install_aliases()
+from builtins import range
+from past.utils import old_div
 import logging
-from Queue import Empty
+from queue import Empty
 from redis import StrictRedis
 from time import time, sleep
 from threading import Thread
@@ -59,13 +64,13 @@ class Analyzer(Thread):
         Assign a bunch of metrics for a process to analyze.
         """
         # Discover assigned metrics
-        keys_per_processor = int(ceil(float(len(unique_metrics)) / float(settings.ANALYZER_PROCESSES)))
+        keys_per_processor = int(ceil(old_div(float(len(unique_metrics)), float(settings.ANALYZER_PROCESSES))))
         if i == settings.ANALYZER_PROCESSES:
             assigned_max = len(unique_metrics)
         else:
             assigned_max = i * keys_per_processor
         assigned_min = assigned_max - keys_per_processor
-        assigned_keys = range(assigned_min, assigned_max)
+        assigned_keys = list(range(assigned_min, assigned_max))
 
         # Compile assigned metrics
         assigned_metrics = [unique_metrics[index] for index in assigned_keys]
@@ -119,10 +124,10 @@ class Analyzer(Thread):
                 logger.info(traceback.format_exc())
 
         # Add values to the queue so the parent process can collate
-        for key, value in anomaly_breakdown.items():
+        for key, value in list(anomaly_breakdown.items()):
             self.anomaly_breakdown_q.put((key, value))
 
-        for key, value in exceptions.items():
+        for key, value in list(exceptions.items()):
             self.exceptions_q.put((key, value))
 
     def run(self):
@@ -170,7 +175,7 @@ class Analyzer(Thread):
             while 1:
                 try:
                     key, value = self.anomaly_breakdown_q.get_nowait()
-                    if key not in anomaly_breakdown.keys():
+                    if key not in list(anomaly_breakdown.keys()):
                         anomaly_breakdown[key] = value
                     else:
                         anomaly_breakdown[key] += value
@@ -180,7 +185,7 @@ class Analyzer(Thread):
             while 1:
                 try:
                     key, value = self.exceptions_q.get_nowait()
-                    if key not in exceptions.keys():
+                    if key not in list(exceptions.keys()):
                         exceptions[key] = value
                     else:
                         exceptions[key] += value
@@ -228,7 +233,7 @@ class Analyzer(Thread):
                 unpacker = Unpacker(use_list = False)
                 unpacker.feed(raw_series)
                 timeseries = list(unpacker)
-                time_human = (timeseries[-1][0] - timeseries[0][0]) / 3600
+                time_human = old_div((timeseries[-1][0] - timeseries[0][0]), 3600)
                 projected = 24 * (time() - now) / time_human
 
                 logger.info('canary duration   :: %.2f' % time_human)

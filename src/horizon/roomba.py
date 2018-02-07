@@ -1,3 +1,6 @@
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 from os import kill
 from redis import StrictRedis, WatchError
 from multiprocessing import Process
@@ -41,17 +44,17 @@ class Roomba(Thread):
 
         # Discover assigned metrics
         unique_metrics = list(self.redis_conn.smembers(namespace + 'unique_metrics'))
-        keys_per_processor = len(unique_metrics) / settings.ROOMBA_PROCESSES
+        keys_per_processor = old_div(len(unique_metrics), settings.ROOMBA_PROCESSES)
         assigned_max = i * keys_per_processor
         assigned_min = assigned_max - keys_per_processor
-        assigned_keys = range(assigned_min, assigned_max)
+        assigned_keys = list(range(assigned_min, assigned_max))
 
         # Compile assigned metrics
         assigned_metrics = [unique_metrics[index] for index in assigned_keys]
 
         euthanized = 0
         blocked = 0
-        for i in xrange(len(assigned_metrics)):
+        for i in range(len(assigned_metrics)):
             self.check_if_parent_is_alive()
 
             pipe = self.redis_conn.pipeline()

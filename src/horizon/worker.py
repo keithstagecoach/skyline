@@ -1,7 +1,10 @@
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 from os import kill, system
 from redis import StrictRedis, WatchError
 from multiprocessing import Process
-from Queue import Empty
+from queue import Empty
 from msgpack import packb
 from time import time, sleep
 
