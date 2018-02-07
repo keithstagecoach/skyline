@@ -76,5 +76,6 @@ class TestAlgorithms(unittest.TestCase):
         self.assertTrue(len([_f for _f in ensemble if _f]) >= settings.CONSENSUS)
         self.assertEqual(datapoint, 1000)
 
+
 if __name__ == '__main__':
     unittest.main()

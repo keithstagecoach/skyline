@@ -254,8 +254,8 @@ def is_anomalously_anomalous(metric_name, ensemble, datapoint):
     trigger_history = unpackb(raw_trigger_history)
 
     # Are we (probably) triggering on the same data?
-    if (new_trigger[1] == trigger_history[-1][1]
-            and new_trigger[0] - trigger_history[-1][0] <= 300):
+    if (new_trigger[1] == trigger_history[-1][1] and
+            new_trigger[0] - trigger_history[-1][0] <= 300):
         return False
 
     # Update the history
