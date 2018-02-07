@@ -1,3 +1,6 @@
+from __future__ import division
+from __future__ import print_function
+from past.utils import old_div
 import redis
 import msgpack
 import sys
@@ -19,7 +22,7 @@ def check_continuity(metric, mini = False):
         raw_series = r.get(settings.FULL_NAMESPACE + metric)
 
     if raw_series is None:
-        print 'key not found at %s ' + metric
+        print('key not found at %s ' + metric)
         return 0, 0, 0, 0, 0
 
     unpacker = msgpack.Unpacker()
@@ -29,7 +32,7 @@ def check_continuity(metric, mini = False):
 
     start = time.ctime(int(timeseries[0][0]))
     end = time.ctime(int(timeseries[-1][0]))
-    duration = (float(timeseries[-1][0]) - float(timeseries[0][0])) / 3600
+    duration = old_div((float(timeseries[-1][0]) - float(timeseries[0][0])), 3600)
 
     last = int(timeseries[0][0]) - 10
     total = 0
@@ -46,25 +49,26 @@ def check_continuity(metric, mini = False):
 
     return length, total_sum, start, end, duration, bad, missing
 
+
 if __name__ == "__main__":
     length, total_sum, start, end, duration, bad, missing = check_continuity(metric)
-    print ""
-    print "Stats for full %s:" % metric
-    print "Length of %s" % length
-    print "Total sum of last 50 datapoints: %s" % total_sum
-    print "Start time: %s" % start
-    print "End time: %s" % end
-    print "Duration: %.2f hours" % duration
-    print "Number of missing data periods: %s" % bad
-    print "Total duration of missing data in seconds: %s" % missing
+    print("")
+    print("Stats for full %s:" % metric)
+    print("Length of %s" % length)
+    print("Total sum of last 50 datapoints: %s" % total_sum)
+    print("Start time: %s" % start)
+    print("End time: %s" % end)
+    print("Duration: %.2f hours" % duration)
+    print("Number of missing data periods: %s" % bad)
+    print("Total duration of missing data in seconds: %s" % missing)
 
     length, total_sum, start, end, duration, bad, missing = check_continuity(metric, True)
-    print ""
-    print "Stats for mini %s:" % metric
-    print "Length: %s" % length
-    print "Total sum of last 50 datapoints: %s" % total_sum
-    print "Start time: %s" % start
-    print "End time: %s" % end
-    print "Duration: %.2f hours" % duration
-    print "Number of missing data periods: %s" % bad
-    print "Total duration of missing data in seconds: %s" % missing
+    print("")
+    print("Stats for mini %s:" % metric)
+    print("Length: %s" % length)
+    print("Total sum of last 50 datapoints: %s" % total_sum)
+    print("Start time: %s" % start)
+    print("End time: %s" % end)
+    print("Duration: %.2f hours" % duration)
+    print("Number of missing data periods: %s" % bad)
+    print("Total duration of missing data in seconds: %s" % missing)

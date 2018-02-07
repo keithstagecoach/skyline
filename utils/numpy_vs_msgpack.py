@@ -1,3 +1,8 @@
+from __future__ import division
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from past.utils import old_div
 import time
 import timeit
 import msgpack
@@ -24,7 +29,7 @@ def msgpack_decode():
 def numpy_decode():
     raw = numpy.fromstring(numpy_list)
     s = raw.size
-    timeseries = raw.reshape((s / 2, 2))
+    timeseries = raw.reshape((old_div(s, 2), 2))
 
 
 if __name__ == '__main__':

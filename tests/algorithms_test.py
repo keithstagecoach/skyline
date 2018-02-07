@@ -2,7 +2,6 @@ from __future__ import print_function
 from builtins import zip
 from builtins import map
 from builtins import range
-import unittest2 as unittest
 from mock import Mock, patch
 from time import time
 

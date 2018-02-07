@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import json
 import os
 import pickle
@@ -27,7 +28,7 @@ class NoDataException(Exception):
 
 
 def seed():
-    print 'Loading data over UDP via Horizon...'
+    print('Loading data over UDP via Horizon...')
     metric = 'horizon.test.udp'
     metric_set = 'unique_metrics'
     initial = int(time.time()) - settings.MAX_RESOLUTION
@@ -43,7 +44,7 @@ def seed():
             packet = msgpack.packb((metric, datapoint))
             sock.sendto(packet, (socket.gethostname(), settings.UDP_PORT))
 
-    print "Connecting to Redis..."
+    print("Connecting to Redis...")
     r = redis.StrictRedis(unix_socket_path=settings.REDIS_SOCKET_PATH)
     time.sleep(5)
 
@@ -66,10 +67,11 @@ def seed():
             if x is None:
                 raise NoDataException
 
-        print "Congratulations! The data made it in. The Horizon pipeline seems to be working."
+        print("Congratulations! The data made it in. The Horizon pipeline seems to be working.")
 
     except NoDataException:
-        print "Woops, looks like the metrics didn't make it into Horizon. Try again?"
+        print("Woops, looks like the metrics didn't make it into Horizon. Try again?")
+
 
 if __name__ == "__main__":
     seed()
