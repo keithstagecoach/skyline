@@ -26,7 +26,6 @@ from algorithm_exceptions import *
 
 logger = logging.getLogger("AnalyzerLog")
 redis_conn = StrictRedis(unix_socket_path=REDIS_SOCKET_PATH)
-
 """
 This is no man's land. Do anything you want in here,
 as long as you return a boolean that determines whether the input
@@ -44,7 +43,8 @@ def tail_avg(timeseries):
     to detection.
     """
     try:
-        t = old_div((timeseries[-1][1] + timeseries[-2][1] + timeseries[-3][1]), 3)
+        t = old_div(
+            (timeseries[-1][1] + timeseries[-2][1] + timeseries[-3][1]), 3)
         return t
     except IndexError:
         return timeseries[-1][1]
@@ -66,7 +66,7 @@ def median_absolute_deviation(timeseries):
     if median_deviation == 0:
         return False
 
-    test_statistic = old_div(demedianed.iget(-1), median_deviation)
+    test_statistic = old_div(demedianed.iat(-1), median_deviation)
 
     # Completely arbitary...triggers if the median deviation is
     # 6 times bigger than the median
@@ -85,9 +85,11 @@ def grubbs(timeseries):
     tail_average = tail_avg(timeseries)
     z_score = old_div((tail_average - mean), stdDev)
     len_series = len(series)
-    threshold = scipy.stats.t.isf(old_div(.05, (2 * len_series)), len_series - 2)
+    threshold = scipy.stats.t.isf(
+        old_div(.05, (2 * len_series)), len_series - 2)
     threshold_squared = threshold * threshold
-    grubbs_score = (old_div((len_series - 1), np.sqrt(len_series))) * np.sqrt(old_div(threshold_squared, (len_series - 2 + threshold_squared)))
+    grubbs_score = (old_div((len_series - 1), np.sqrt(len_series))) * np.sqrt(
+        old_div(threshold_squared, (len_series - 2 + threshold_squared)))
 
     return z_score > grubbs_score
 
@@ -99,7 +101,8 @@ def first_hour_average(timeseries):
     are outside of three standard deviations of this value.
     """
     last_hour_threshold = time() - (FULL_DURATION - 3600)
-    series = pandas.Series([x[1] for x in timeseries if x[0] < last_hour_threshold])
+    series = pandas.Series(
+        [x[1] for x in timeseries if x[0] < last_hour_threshold])
     mean = (series).mean()
     stdDev = (series).std()
     t = tail_avg(timeseries)
@@ -133,7 +136,8 @@ def stddev_from_moving_average(timeseries):
     expAverage = pandas.stats.moments.ewma(series, com=50)
     stdDev = pandas.stats.moments.ewmstd(series, com=50)
 
-    return abs(series.iget(-1) - expAverage.iget(-1)) > 3 * stdDev.iget(-1)
+    return abs(series[series.last_valid_index(
+    )] - expAverage[expAverage.last_valid_index()]) > 3 * stdDev[stdDev.last_valid_index()]
 
 
 def mean_subtraction_cumulation(timeseries):
@@ -147,8 +151,7 @@ def mean_subtraction_cumulation(timeseries):
     series = series - series[0:len(series) - 1].mean()
     stdDev = series[0:len(series) - 1].std()
     expAverage = pandas.stats.moments.ewma(series, com=15)
-
-    return abs(series.iget(-1)) > 3 * stdDev
+    return abs(series[series.last_valid_index()]) > 3 * stdDev
 
 
 def least_squares(timeseries):
@@ -200,7 +203,7 @@ def histogram_bins(timeseries):
                     return True
             # Is it in the current bin?
             elif t >= bins[index] and t < bins[index + 1]:
-                    return True
+                return True
 
     return False
 
@@ -215,7 +218,9 @@ def ks_test(timeseries):
 
     hour_ago = time() - 3600
     ten_minutes_ago = time() - 600
-    reference = scipy.array([x[1] for x in timeseries if x[0] >= hour_ago and x[0] < ten_minutes_ago])
+    reference = scipy.array([
+        x[1] for x in timeseries if x[0] >= hour_ago and x[0] < ten_minutes_ago
+    ])
     probe = scipy.array([x[1] for x in timeseries if x[0] >= ten_minutes_ago])
 
     if reference.size < 20 or probe.size < 20:
@@ -242,15 +247,16 @@ def is_anomalously_anomalous(metric_name, ensemble, datapoint):
     # Get the old history
     raw_trigger_history = redis_conn.get('trigger_history.' + metric_name)
     if not raw_trigger_history:
-        redis_conn.set('trigger_history.' + metric_name, packb([(time(), datapoint)]))
+        redis_conn.set('trigger_history.' + metric_name,
+                       packb([(time(), datapoint)]))
         return True
 
     trigger_history = unpackb(raw_trigger_history)
 
     # Are we (probably) triggering on the same data?
-    if (new_trigger[1] == trigger_history[-1][1] and
-            new_trigger[0] - trigger_history[-1][0] <= 300):
-                return False
+    if (new_trigger[1] == trigger_history[-1][1]
+            and new_trigger[0] - trigger_history[-1][0] <= 300):
+        return False
 
     # Update the history
     trigger_history.append(new_trigger)
@@ -260,8 +266,7 @@ def is_anomalously_anomalous(metric_name, ensemble, datapoint):
     trigger_times = [x[0] for x in trigger_history]
     intervals = [
         trigger_times[i + 1] - trigger_times[i]
-        for i, v in enumerate(trigger_times)
-        if (i + 1) < len(trigger_times)
+        for i, v in enumerate(trigger_times) if (i + 1) < len(trigger_times)
     ]
 
     series = pandas.Series(intervals)
@@ -284,15 +289,19 @@ def run_selected_algorithm(timeseries, metric_name):
         raise Stale()
 
     # Get rid of boring series
-    if len(set(item[1] for item in timeseries[-MAX_TOLERABLE_BOREDOM:])) == BOREDOM_SET_SIZE:
+    if len(set(item[1] for item in timeseries[
+            -MAX_TOLERABLE_BOREDOM:])) == BOREDOM_SET_SIZE:
         raise Boring()
 
     try:
-        ensemble = [globals()[algorithm](timeseries) for algorithm in ALGORITHMS]
+        ensemble = [
+            globals()[algorithm](timeseries) for algorithm in ALGORITHMS
+        ]
         threshold = len(ensemble) - CONSENSUS
         if ensemble.count(False) <= threshold:
             if ENABLE_SECOND_ORDER:
-                if is_anomalously_anomalous(metric_name, ensemble, timeseries[-1][1]):
+                if is_anomalously_anomalous(metric_name, ensemble,
+                                            timeseries[-1][1]):
                     return True, ensemble, timeseries[-1][1]
             else:
                 return True, ensemble, timeseries[-1][1]

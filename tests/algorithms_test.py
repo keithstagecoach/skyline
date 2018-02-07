@@ -6,6 +6,7 @@ from mock import Mock, patch
 from time import time
 
 import sys
+import unittest
 from os.path import dirname, abspath
 
 sys.path.insert(0, dirname(dirname(abspath(__file__))) + '/src')
@@ -74,32 +75,6 @@ class TestAlgorithms(unittest.TestCase):
         self.assertTrue(result)
         self.assertTrue(len([_f for _f in ensemble if _f]) >= settings.CONSENSUS)
         self.assertEqual(datapoint, 1000)
-
-    @unittest.skip('Fails inexplicable in certain environments.')
-    @patch.object(algorithms, 'CONSENSUS')
-    @patch.object(algorithms, 'ALGORITHMS')
-    @patch.object(algorithms, 'time')
-    def test_run_selected_algorithm_runs_novel_algorithm(self, timeMock,
-                                                         algorithmsListMock, consensusMock):
-        """
-        Assert that a user can add their own custom algorithm.
-
-        This mocks out settings.ALGORITHMS and settings.CONSENSUS to use only a
-        single custom-defined function (alwaysTrue)
-        """
-        algorithmsListMock.__iter__.return_value = ['alwaysTrue']
-        consensusMock = 1
-        timeMock.return_value, timeseries = self.data(time())
-
-        alwaysTrue = Mock(return_value=True)
-        with patch.dict(algorithms.__dict__, {'alwaysTrue': alwaysTrue}):
-            result, ensemble, tail_avg = algorithms.run_selected_algorithm(timeseries)
-
-        alwaysTrue.assert_called_with(timeseries)
-        self.assertTrue(result)
-        self.assertEqual(ensemble, [True])
-        self.assertEqual(tail_avg, 334)
-
 
 if __name__ == '__main__':
     unittest.main()
