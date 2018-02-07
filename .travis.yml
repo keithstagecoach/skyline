@@ -2,9 +2,9 @@ language: python
 python:
   - "3.6"
 install:
-  - pip install -r requirements.txt --use-mirrors
+  - pip install -r requirements.txt
   - cp src/settings.py.example src/settings.py
-  - pip install pep8 --use-mirrors
+  - pip install pep8
 script:
   - PYTHONPATH= PATH=/home/travis/anaconda/bin:$PATH nosetests -v --nocapture
   - pep8 --exclude=migrations --ignore=E501,E251,E265 ./ 
