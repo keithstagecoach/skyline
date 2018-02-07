@@ -71,6 +71,7 @@ class App(object):
 
         app.run(settings.WEBAPP_IP, settings.WEBAPP_PORT)
 
+
 if __name__ == "__main__":
     """
     Start the server

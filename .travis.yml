@@ -4,9 +4,9 @@ python:
 install:
   - pip install -r requirements.txt
   - cp src/settings.py.example src/settings.py
-  - pip install pep8
+  - pip install pycodestyle
 script:
   - PYTHONPATH= PATH=/home/travis/anaconda/bin:$PATH nosetests -v --nocapture
-  - pep8 --exclude=migrations --ignore=E501,E251,E265,E402 ./ 
+  - pycodestyle --exclude=migrations --ignore=E501,E251,E265,E402,E722 ./ 
 notifications:
   email: false

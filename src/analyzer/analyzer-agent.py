@@ -33,6 +33,7 @@ class AnalyzerAgent(object):
         while 1:
             sleep(100)
 
+
 if __name__ == "__main__":
     """
     Start the Analyzer agent.

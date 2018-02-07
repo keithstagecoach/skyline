@@ -24,7 +24,7 @@ except ImportError:
 try:
     import pickle as pickle
     USING_CPICKLE = True
-except:
+except ImportError:
     import pickle
     USING_CPICKLE = False
 
