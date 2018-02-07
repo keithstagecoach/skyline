@@ -1,13 +1,8 @@
-## Skyline is an Archived Project
-
-Skyline is no longer actively maintained. Your mileage with patches may vary.
-
-
 ## Skyline
 
-[![Build Status](https://travis-ci.org/etsy/skyline.svg)](https://travis-ci.org/etsy/skyline)
+[![Build Status](https://travis-ci.org/keithstagecoach/skyline)
 
-![x](https://raw.github.com/etsy/skyline/master/screenshot.png)
+![x](https://raw.github.com/keithstagecoach/skyline/master/screenshot.png)
 
 Skyline is a real-time* anomaly detection* system*, built to enable passive
 monitoring of hundreds of thousands of metrics, without the need to configure a
