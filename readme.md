@@ -1,6 +1,6 @@
 ## Skyline
 
-[![Build Status](https://travis-ci.org/keithstagecoach/skyline)
+[![Build Status](https://travis-ci.org/keithstagecoach/skyline.svg?branch=master)](https://travis-ci.org/keithstagecoach/skyline)
 
 ![x](https://raw.github.com/keithstagecoach/skyline/master/screenshot.png)
 
