@@ -8,6 +8,7 @@ from queue import Full
 from multiprocessing import Process
 from struct import Struct, unpack
 from msgpack import unpackb
+import sys
 
 import logging
 import settings
@@ -15,18 +16,17 @@ import settings
 logger = logging.getLogger("HorizonLog")
 
 ##SafeUnpickler taken from Carbon: https://github.com/graphite-project/carbon/blob/master/lib/carbon/util.py
-import sys
 try:
-  from io import StringIO
+    from io import StringIO
 except ImportError:
-  from io import StringIO
+    from io import StringIO
 
 try:
-  import pickle as pickle
-  USING_CPICKLE = True
+    import pickle as pickle
+    USING_CPICKLE = True
 except:
-  import pickle
-  USING_CPICKLE = False
+    import pickle
+    USING_CPICKLE = False
 
 # This whole song & dance is due to pickle being insecure
 # yet performance critical for carbon. We leave the insecure
@@ -34,52 +34,63 @@ except:
 # The SafeUnpickler classes were largely derived from
 # http://nadiana.com/python-pickle-insecure
 if USING_CPICKLE:
-  class SafeUnpickler(object):
-    PICKLE_SAFE = {
-      'copy_reg' : set(['_reconstructor']),
-      '__builtin__' : set(['object']),
-    }
+
+    class SafeUnpickler(object):
+        PICKLE_SAFE = {
+            'copy_reg': set(['_reconstructor']),
+            '__builtin__': set(['object']),
+        }
 
     @classmethod
     def find_class(cls, module, name):
-      if not module in cls.PICKLE_SAFE:
-        raise pickle.UnpicklingError('Attempting to unpickle unsafe module %s' % module)
-      __import__(module)
-      mod = sys.modules[module]
-      if not name in cls.PICKLE_SAFE[module]:
-        raise pickle.UnpicklingError('Attempting to unpickle unsafe class %s' % name)
-      return getattr(mod, name)
+        if module not in cls.PICKLE_SAFE:
+            raise pickle.UnpicklingError(
+                'Attempting to unpickle unsafe module %s' % module)
+        __import__(module)
+        mod = sys.modules[module]
+        if name not in cls.PICKLE_SAFE[module]:
+            raise pickle.UnpicklingError(
+                'Attempting to unpickle unsafe class %s' % name)
+        return getattr(mod, name)
 
     @classmethod
     def loads(cls, pickle_string):
-      pickle_obj = pickle.Unpickler(StringIO(pickle_string))
-      pickle_obj.find_global = cls.find_class
-      return pickle_obj.load()
+        pickle_obj = pickle.Unpickler(StringIO(pickle_string))
+        pickle_obj.find_global = cls.find_class
+        return pickle_obj.load()
 
 else:
-  class SafeUnpickler(pickle.Unpickler):
-    PICKLE_SAFE = {
-      'copy_reg' : set(['_reconstructor']),
-      '__builtin__' : set(['object']),
-    }
-    def find_class(self, module, name):
-      if not module in self.PICKLE_SAFE:
-        raise pickle.UnpicklingError('Attempting to unpickle unsafe module %s' % module)
-      __import__(module)
-      mod = sys.modules[module]
-      if not name in self.PICKLE_SAFE[module]:
-        raise pickle.UnpicklingError('Attempting to unpickle unsafe class %s' % name)
-      return getattr(mod, name)
 
-    @classmethod
-    def loads(cls, pickle_string):
-      return cls(StringIO(pickle_string)).load()
+    class SafeUnpickler(pickle.Unpickler):
+        PICKLE_SAFE = {
+            'copy_reg': set(['_reconstructor']),
+            '__builtin__': set(['object']),
+        }
+
+        def find_class(self, module, name):
+            if module not in self.PICKLE_SAFE:
+                raise pickle.UnpicklingError(
+                    'Attempting to unpickle unsafe module %s' % module)
+            __import__(module)
+            mod = sys.modules[module]
+            if name not in self.PICKLE_SAFE[module]:
+                raise pickle.UnpicklingError(
+                    'Attempting to unpickle unsafe class %s' % name)
+            return getattr(mod, name)
+
+        @classmethod
+        def loads(cls, pickle_string):
+            return cls(StringIO(pickle_string)).load()
+
+
 ##//SafeUnpickler
+
 
 class Listen(Process):
     """
     The listener is responsible for listening on a port.
     """
+
     def __init__(self, port, queue, parent_pid, type="pickle"):
         super(Listen, self).__init__()
         try:
@@ -165,12 +176,16 @@ class Listen(Process):
 
                                     # Drop chunk if queue is full
                                     except Full:
-                                        logger.info('queue is full, dropping datapoints')
+                                        logger.info(
+                                            'queue is full, dropping datapoints'
+                                        )
                                         chunk[:] = []
 
                     except Exception as e:
                         logger.info(e)
-                        logger.info('incoming connection dropped, attempting to reconnect')
+                        logger.info(
+                            'incoming connection dropped, attempting to reconnect'
+                        )
                         break
 
             except Exception as e:
@@ -185,7 +200,8 @@ class Listen(Process):
             try:
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 s.bind((self.ip, self.port))
-                logger.info('listening over udp for messagepack on %s' % self.port)
+                logger.info(
+                    'listening over udp for messagepack on %s' % self.port)
 
                 chunk = []
                 while 1:

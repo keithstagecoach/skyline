@@ -7,10 +7,10 @@ from msgpack import Unpacker
 from flask import Flask, request, render_template
 from daemon import runner
 from os.path import dirname, abspath
+import settings
 
 # add the shared settings file to namespace
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
-import settings
 
 REDIS_CONN = redis.StrictRedis(unix_socket_path=settings.REDIS_SOCKET_PATH)
 

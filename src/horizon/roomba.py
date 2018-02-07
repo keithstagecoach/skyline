@@ -19,9 +19,11 @@ class Roomba(Thread):
     """
     The Roomba is responsible for deleting keys older than DURATION.
     """
+
     def __init__(self, parent_pid, skip_mini):
         super(Roomba, self).__init__()
-        self.redis_conn = StrictRedis(unix_socket_path = settings.REDIS_SOCKET_PATH)
+        self.redis_conn = StrictRedis(
+            unix_socket_path=settings.REDIS_SOCKET_PATH)
         self.daemon = True
         self.parent_pid = parent_pid
         self.skip_mini = skip_mini
@@ -43,8 +45,10 @@ class Roomba(Thread):
         begin = time()
 
         # Discover assigned metrics
-        unique_metrics = list(self.redis_conn.smembers(namespace + 'unique_metrics'))
-        keys_per_processor = old_div(len(unique_metrics), settings.ROOMBA_PROCESSES)
+        unique_metrics = list(
+            self.redis_conn.smembers(namespace + 'unique_metrics'))
+        keys_per_processor = old_div(
+            len(unique_metrics), settings.ROOMBA_PROCESSES)
         assigned_max = i * keys_per_processor
         assigned_min = assigned_max - keys_per_processor
         assigned_keys = list(range(assigned_min, assigned_max))
@@ -69,7 +73,7 @@ class Roomba(Thread):
                 # comes in. If your data has a very small resolution (<.1s),
                 # this technique may not suit you.
                 raw_series = pipe.get(key)
-                unpacker = Unpacker(use_list = False)
+                unpacker = Unpacker(use_list=False)
                 unpacker.feed(raw_series)
                 timeseries = sorted([unpacked for unpacked in unpacker])
 
@@ -101,10 +105,8 @@ class Roomba(Thread):
                 temp_add = temp.add
                 delta = now - duration
                 trimmed = [
-                    tuple for tuple in timeseries
-                    if tuple[0] > delta
-                    and tuple[0] not in temp
-                    and not temp_add(tuple[0])
+                    tuple for tuple in timeseries if tuple[0] > delta and
+                    tuple[0] not in temp and not temp_add(tuple[0])
                 ]
 
                 # Purge if everything was deleted, set key otherwise
@@ -139,8 +141,10 @@ class Roomba(Thread):
             finally:
                 pipe.reset()
 
-        logger.info('operated on %s in %f seconds' % (namespace, time() - begin))
-        logger.info('%s keyspace is %d' % (namespace, (len(assigned_metrics) - euthanized)))
+        logger.info('operated on %s in %f seconds' % (namespace,
+                                                      time() - begin))
+        logger.info('%s keyspace is %d' %
+                    (namespace, (len(assigned_metrics) - euthanized)))
         logger.info('blocked %d times' % blocked)
         logger.info('euthanized %d geriatric keys' % euthanized)
 
@@ -161,20 +165,29 @@ class Roomba(Thread):
             try:
                 self.redis_conn.ping()
             except:
-                logger.error('roomba can\'t connect to redis at socket path %s' % settings.REDIS_SOCKET_PATH)
+                logger.error('roomba can\'t connect to redis at socket path %s'
+                             % settings.REDIS_SOCKET_PATH)
                 sleep(10)
-                self.redis_conn = StrictRedis(unix_socket_path = settings.REDIS_SOCKET_PATH)
+                self.redis_conn = StrictRedis(
+                    unix_socket_path=settings.REDIS_SOCKET_PATH)
                 continue
 
             # Spawn processes
             pids = []
             for i in range(1, settings.ROOMBA_PROCESSES + 1):
                 if not self.skip_mini:
-                    p = Process(target=self.vacuum, args=(i, settings.MINI_NAMESPACE, settings.MINI_DURATION + settings.ROOMBA_GRACE_TIME))
+                    p = Process(
+                        target=self.vacuum,
+                        args=(i, settings.MINI_NAMESPACE,
+                              settings.MINI_DURATION +
+                              settings.ROOMBA_GRACE_TIME))
                     pids.append(p)
                     p.start()
 
-                p = Process(target=self.vacuum, args=(i, settings.FULL_NAMESPACE, settings.FULL_DURATION + settings.ROOMBA_GRACE_TIME))
+                p = Process(
+                    target=self.vacuum,
+                    args=(i, settings.FULL_NAMESPACE,
+                          settings.FULL_DURATION + settings.ROOMBA_GRACE_TIME))
                 pids.append(p)
                 p.start()
 

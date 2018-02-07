@@ -8,15 +8,14 @@ from os import getpid
 from os.path import dirname, abspath, isdir
 from multiprocessing import Queue
 from daemon import runner
-
-# add the shared settings file to namespace
-sys.path.insert(0, dirname(dirname(abspath(__file__))))
 import settings
 
 from listen import Listen
 from roomba import Roomba
 from worker import Worker
 
+# add the shared settings file to namespace
+sys.path.insert(0, dirname(dirname(abspath(__file__))))
 # TODO: http://stackoverflow.com/questions/6728236/exception-thrown-in-multiprocessing-pool-not-detected
 
 
