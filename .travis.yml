@@ -6,7 +6,7 @@ install:
   - cp src/settings.py.example src/settings.py
   - pip install pycodestyle
 script:
-  - PYTHONPATH= PATH=/home/travis/anaconda/bin:$PATH nosetests -v --nocapture
+  - nosetests -v --nocapture
   - pycodestyle --exclude=migrations --ignore=E501,E251,E265,E402,E722 ./ 
 notifications:
   email: false
