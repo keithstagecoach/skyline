@@ -9,7 +9,6 @@
 # under the terms of the Apache License, version 2.0 as published by the
 # Apache Software Foundation.
 # No warranty expressed or implied. See the file ‘LICENSE.ASF-2’ for details.
-
 """ Package metadata for the ‘python-daemon’ distribution. """
 
 from __future__ import (absolute_import, unicode_literals)
@@ -21,7 +20,6 @@ import pkg_resources
 
 __metaclass__ = type
 
-
 distribution_name = "python-daemon"
 version_info_filename = "version_info.json"
 
@@ -38,10 +36,10 @@ def get_distribution_version_info(filename=version_info_filename):
 
         """
     version_info = {
-            'release_date': "UNKNOWN",
-            'version': "UNKNOWN",
-            'maintainer': "UNKNOWN",
-            }
+        'release_date': "UNKNOWN",
+        'version': "UNKNOWN",
+        'maintainer': "UNKNOWN",
+    }
 
     try:
         distribution = pkg_resources.get_distribution(distribution_name)
@@ -55,16 +53,16 @@ def get_distribution_version_info(filename=version_info_filename):
 
     return version_info
 
+
 version_info = get_distribution_version_info()
 
 version_installed = version_info['version']
 
-
 author_name = "Ben Finney"
 author_email = "ben+python@benfinney.id.au"
 author = "{name} <{email}>".format(name=author_name, email=author_email)
 
-
+
 class YearRange:
     """ A range of years spanning a period. """
 
@@ -108,16 +106,16 @@ def make_year_range(begin_year, end_date=None):
 
     return year_range
 
+
 copyright_year_begin = "2001"
 build_date = version_info['release_date']
 copyright_year_range = make_year_range(copyright_year_begin, build_date)
 
 copyright = "Copyright © {year_range} {author} and others".format(
-        year_range=copyright_year_range, author=author)
+    year_range=copyright_year_range, author=author)
 license = "Apache-2"
 url = "https://pagure.io/python-daemon/"
 
-
 # Local variables:
 # coding: utf-8
 # mode: python
