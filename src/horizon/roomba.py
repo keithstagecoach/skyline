@@ -6,7 +6,6 @@ from redis import StrictRedis, WatchError
 from multiprocessing import Process
 from threading import Thread
 from msgpack import Unpacker, packb
-from types import TupleType
 from time import time, sleep
 
 import logging

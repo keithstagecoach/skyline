@@ -7,7 +7,7 @@ RETVAL=0
 
 start () {
     rm -f $BASEDIR/src/webapp/*.pyc
-    /usr/bin/env python $BASEDIR/src/webapp/webapp.py start
+    /usr/bin/env python3 $BASEDIR/src/webapp/webapp.py start
         RETVAL=$?
         if [[ $RETVAL -eq 0 ]]; then
             echo "started webapp"
@@ -18,7 +18,7 @@ start () {
 }
 
 stop () {
-    /usr/bin/env python $BASEDIR/src/webapp/webapp.py stop
+    /usr/bin/env python3 $BASEDIR/src/webapp/webapp.py stop
         RETVAL=$?
         if [[ $RETVAL -eq 0 ]]; then
             echo "stopped webapp"
@@ -30,7 +30,7 @@ stop () {
 
 restart () {
     rm -f $BASEDIR/src/webapp/*.pyc
-    /usr/bin/env python $BASEDIR/src/webapp/webapp.py restart
+    /usr/bin/env python3 $BASEDIR/src/webapp/webapp.py restart
         RETVAL=$?
         if [[ $RETVAL -eq 0 ]]; then
             echo "restarted webapp"
@@ -42,7 +42,7 @@ restart () {
 
 run () {
     echo "running webapp"
-    /usr/bin/env python $BASEDIR/src/webapp/webapp.py run
+    /usr/bin/env python3 $BASEDIR/src/webapp/webapp.py run
 }
 
 # See how we were called.

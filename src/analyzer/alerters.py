@@ -1,10 +1,7 @@
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEText import MIMEText
-from email.MIMEImage import MIMEImage
-from smtplib import SMTP
+import smtplib
 import alerters
 import settings
-
+from email.message import EmailMessage
 
 """
 Create any alerter you want here. The function will be invoked from trigger_alert.
@@ -22,28 +19,19 @@ metric: information about the anomaly itself
 
 def alert_smtp(alert, metric):
 
-    # For backwards compatibility
-    if '@' in alert[1]:
-        sender = settings.ALERT_SENDER
-        recipient = alert[1]
-    else:
-        sender = settings.SMTP_OPTS['sender']
-        recipients = settings.SMTP_OPTS['recipients'][alert[0]]
-
-    # Backwards compatibility
-    if type(recipients) is str:
-        recipients = [recipients]
+    sender = settings.SMTP_OPTS['sender']
+    recipients = settings.SMTP_OPTS['recipients'][alert[0]]
 
     for recipient in recipients:
-        msg = MIMEMultipart('alternative')
+        msg = EmailMessage()
         msg['Subject'] = '[skyline alert] ' + metric[1]
         msg['From'] = sender
         msg['To'] = recipient
         link = settings.GRAPH_URL % (metric[1])
         body = 'Anomalous value: %s <br> Next alert in: %s seconds <a href="%s"><img src="%s"/></a>' % (metric[0], alert[2], link, link)
-        msg.attach(MIMEText(body, 'html'))
-        s = SMTP('127.0.0.1')
-        s.sendmail(sender, recipient, msg.as_string())
+        msg.set_content(body)
+        s = smtplib.SMTP('127.0.0.1')
+        s.send_message(msg)
         s.quit()
 
 

@@ -1,5 +1,6 @@
 from future import standard_library
 standard_library.install_aliases()
+from os.path import dirname, abspath, isdir
 from builtins import str
 from builtins import object
 import socket
@@ -10,6 +11,8 @@ from struct import Struct, unpack
 from msgpack import unpackb
 import sys
 
+# add the shared settings file to namespace
+sys.path.insert(0, dirname(dirname(abspath(__file__))))
 import logging
 import settings
 

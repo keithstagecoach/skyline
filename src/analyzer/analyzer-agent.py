@@ -8,11 +8,11 @@ import sys
 import traceback
 from os import getpid
 from os.path import dirname, abspath, isdir
-from daemon import runner
 from time import sleep, time
 
 # add the shared settings file to namespace
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
+from daemon import runner
 import settings
 
 from analyzer import Analyzer
